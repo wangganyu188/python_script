@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import commands
+import re
+
+
+
+
+
+ipsort = {}
+def IpSort(logfile):
+	ipadd = r'\.'.join([r'\d{1,3}']*4)
+        re_ip = re.compile(ipadd)
+        for line in open(logfile):
+                match = re_ip.match(line)
+                if match:
+                        ip = match.group( )
+                        ipsort[ip] = ipsort.get(ip, 0) + 1
+	#return ipsort
+	#logfile=ipsort
+	#print logfile,"\n",ipsort,"\n"
+	#ipnum[logfile] = ipsort
+def ReadFile():
+
+	filedir = raw_input("Enter the path>").strip()
+	filelist = os.listdir(filedir)
+	filenum = 0
+	for line in filelist:
+		if line[-4:] == '.txt':
+			IpSort(line)
+			#s,r = commands.getstatusoutput("cat %s/%s |awk wc -l" %(filedir,line))
+
+			
+
+
+
+def mergeipnum(*ipns):
+	_keys = set(sum([ipn.keys() for ipn in ipns],[]))
+	#print _keys,
+	_ipnum_dic = {}
+	for _key in _keys:
+		#pass
+		#print _key
+		_ipnum_dic[_key] = sum([ipn.get(_key,0) for ipn in ipns])
+		
+	print _ipnum_dic,
+
+	
+
+
+ReadFile()
+mergeipnum(ipsort)
