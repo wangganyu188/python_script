@@ -1,4 +1,76 @@
 python_script
 =============
 
-splitlog
+#!/usr/bin/env python
+#coding:utf8
+
+#author: wangqiankun@lashou-inc.com
+#des : 日志切割脚本
+
+
+
+
+
+import os
+import glob
+import time
+import shutil
+import datetime
+import commands
+
+#日志路径:
+logdir   = '/data/application'
+scriptlog = os.popen("pwd").read().strip('\n') + '/' + 'splittomcat.log'
+appname = ['zhuzhan_search01','newweb_search']
+#今天
+today = datetime.date.today()
+lasttime = (today - datetime.timedelta(days=1)).strftime("%Y%m%d")
+
+#print logfiledir
+def splitlog(file):
+	for appn in appname:
+		logfiledir = "%s/%s/tomcat/logs" %(logdir,appn)
+		filedir = logfiledir + "/" + file
+		if os.path.isfile(filedir):
+			print "%s is exists" %filedir
+			commands.getstatusoutput("cp -a %s{,.%s}" %(filedir,lasttime))
+			commands.getstatusoutput("> %s" %filedir)
+			s,r = commands.getstatusoutput("ls -lrt  %s*" %filedir)
+			print s,r
+			logf = open(scriptlog,'w')
+			logf.write(r)
+			logf.close
+			
+		else:
+			print "not exists"
+	
+	print filedir
+
+	
+
+def deloverduelog(file):
+	for appn in appname:
+		logfiledir = "%s/%s/tomcat/logs" %(logdir,appn)
+		filedir = logfiledir + "/" + file 
+		delfn = file[:-8]
+		print filedir
+		if os.path.isfile(filedir):
+			print "%s is exists" %filedir
+			commands.getstatusoutput("find %s -type f -name '%s*' -mtime + 3 -exec rm -rf {} \;" %(logfiledir,delfn))
+			s,r = commands.getstatusoutput("ls -lrt  %s*" %filedir)
+			print s,r
+			
+		else:
+			print "not exists"
+	
+		
+
+
+if __name__ == '__main__':
+	logfile = 'jsvc.log'
+	print "**************%s split start %s *************************** " %(logfile,time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+	splitlog(logfile)
+	time.sleep(10)
+	print "**************%s clean overdue log  start %s *************************** " %(logfile,time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+	fvar = logfile + '.' + lasttime
+	deloverduelog(fvar)
